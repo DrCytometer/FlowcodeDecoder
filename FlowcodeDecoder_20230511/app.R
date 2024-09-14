@@ -421,10 +421,14 @@ server <- function(input, output, session) {
         
         # link Procode_combination to Id#########
         update_modal_spinner(text = "link Procode_combination to Id")
-        reactV$rowData$Procode_combination = apply(aboveThreshold_matrix[,sort(reactV$procodeIds)],1,function(x) paste(colnames(aboveThreshold_matrix[,sort(reactV$procodeIds)])[which(as.logical(x))], collapse =  "_"))
-        reactV$combdf$Procode_combination = apply(reactV$combdf, 1, function(x) paste(sort(unlist(x[-1])),collapse = "_"))
+        aboveThreshold_ProCode_matrix <- aboveThreshold_matrix[, sort(reactV$procodeIds)]
+        aboveThreshold_matrix_logical <- as.logical(aboveThreshold_ProCode_matrix)
+        dim(aboveThreshold_matrix_logical) <- dim(aboveThreshold_ProCode_matrix)
+        colnames(aboveThreshold_matrix_logical) <- colnames(aboveThreshold_ProCode_matrix)
+        reactV$rowData$Procode_combination <- apply(aboveThreshold_matrix_logical, 1, function(x) paste(names(which(x)), collapse = "_"))
+        reactV$combdf$Procode_combination <- apply(reactV$combdf, 1, function(x) paste(sort(unlist(x[-1])), collapse = "_"))
         
-        reactV$rowData = left_join(reactV$rowData, reactV$combdf[, c(1,ncol(reactV$combdf))], by = c("Procode_combination"))
+        reactV$rowData <- left_join(reactV$rowData, reactV$combdf[, c(1, ncol(reactV$combdf))], by = c("Procode_combination"))
         
         
         reactV$rowData$Id[is.na(reactV$rowData$Id)&reactV$rowData$abovethreshold_ProcodeCount>=3] = "3 or more unexpected signals"
